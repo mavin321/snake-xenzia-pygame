@@ -9,6 +9,10 @@ pygame.mixer.init() #initialize background music
 clock=pygame.time.Clock()
 fps=60
 
+#game font
+font=pygame.font.SysFont('Bauhaus 93', 60)
+white=(255, 255, 255)
+
 #create game window
 screen_height=700
 screen_width=1000
@@ -20,9 +24,19 @@ slither=False
 game_over=False
 score=0
 
+#loading button
+button_image=pygame.image.load('assets/restart.png')
+
 #background 
 WHITE=(0, 100, 0)
 Black=(0, 0, 0)
+
+
+#reset game
+def reset_game():
+    my_snake.rect.x=screen_width//2
+    my_snake.rect.y=screen_height//2
+
 
 #create a class for the snake object
 class Snake(pygame.sprite.Sprite):
@@ -63,6 +77,23 @@ class Snake(pygame.sprite.Sprite):
             self.rect.y+=0
             self.rect.x-=self.vel
         
+class Button_for_reset():
+    def __init__(self, x, y, image):
+        self.image=image
+        self.rect=self.image.get_rect()
+        self.rect.topleft= (x, y)
+
+    def draw(self):
+        action=False
+        #getting mouse position
+        pos=pygame.mouse.get_pos()
+
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0]==1:
+                action=True
+
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+        return action
 
 
 
@@ -73,6 +104,9 @@ snake_group=pygame.sprite.Group()
 my_snake=Snake(screen_width//2,screen_height//2)
 #adding to group
 snake_group.add(my_snake)
+
+#creating instance of button
+button=Button_for_reset(screen_width//2-50, screen_height//2-50, button_image)
 
 #game loop
 snake=True # true means its alive and false means its dead
@@ -94,6 +128,18 @@ while snake:
 
 
     pygame.draw.rect(screen, Black, (50,50,900,600), 10)
+
+    #checking for game over for reset
+    if game_over==True:
+        if button.draw()==True:
+            game_over=False
+            slither=True
+            my_snake.vel=2
+            my_snake.image=pygame.image.load('assets/head_down.png')
+            my_snake.direction='down'
+            reset_game()
+
+
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             snake=False
